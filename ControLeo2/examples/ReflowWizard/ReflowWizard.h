@@ -2,6 +2,8 @@
 #ifndef REFLOW_WIZARD_H
 #define REFLOW_WIZARD_H
 
+#include <avr/pgmspace.h>
+
 // Main menu modes
 #define MODE_TESTING                         0
 #define MODE_CONFIG                          1
@@ -21,7 +23,15 @@
 #define NO_OF_TYPES                          6
 #define isHeatingElement(x)                  (x == TYPE_TOP_ELEMENT || x == TYPE_BOTTOM_ELEMENT || x == TYPE_BOOST_ELEMENT)
 
-const char *outputDescription[NO_OF_TYPES] = {"Unused", "Top", "Bottom", "Boost", "Convection Fan","Cooling Fan"};
+const char c_outDesc_unused[] PROGMEM = "Unused";
+const char c_outDesc_top[] PROGMEM = "Top";
+const char c_outDesc_bottom[] PROGMEM = "Bottom";
+const char c_outDesc_boost[] PROGMEM = "Boost";
+const char c_outDesc_convection[] PROGMEM = "Convection Fan";
+const char c_outDesc_cooling[] PROGMEM = "Cooling Fan";
+
+const char* const outputDescription[NO_OF_TYPES] PROGMEM = {c_outDesc_unused, c_outDesc_top, c_outDesc_bottom, c_outDesc_boost, c_outDesc_convection, c_outDesc_cooling};
+char descBuffer[15];
 
 // Phases of reflow
 #define PHASE_INIT                           0    // Variable initialization
@@ -39,24 +49,34 @@ const char *outputDescription[NO_OF_TYPES] = {"Unused", "Top", "Bottom", "Boost"
 #define BAKING_PHASE_START_COOLING           3    // Start the cooling process
 #define BAKING_PHASE_COOLING                 4    // Wait till the oven has cooled down to 50°C
 #define BAKING_PHASE_ABORT                   5    // Baking was aborted or completed
-const char *phaseDescription[] = {"", "Presoak", "Soak", "Reflow", "Waiting", "Cooling", "Cool - open door", "Abort"};
-const char *bakingPhaseDescription[] = {"", "Heating", "Baking", "", "Cooling", ""};
 
-// Tunes used to indication various actions or status
-#define TUNE_STARTUP                         0
-#define TUNE_TOP_BUTTON_PRESS                1
-#define TUNE_BOTTOM_BUTTON_PRESS             2
-#define TUNE_REFLOW_DONE                     3
-#define TUNE_REMOVE_BOARDS                   4
-#define MAX_TUNES                            5
+const char empty[] PROGMEM = "";
+
+const char c_phaseDesc_presoak[] PROGMEM = "Presoak";
+const char c_phaseDesc_soak[] PROGMEM = "Soak";
+const char c_phaseDesc_reflow[] PROGMEM = "Reflow";
+const char c_phaseDesc_waiting[] PROGMEM = "Waiting";
+const char c_phaseDesc_cooling[] PROGMEM = "Cooling";
+const char c_phaseDesc_cooldoor[] PROGMEM = "Cool - open door";
+const char c_phaseDesc_abort[] PROGMEM = "Abort";
+
+const char* const phaseDescription[] PROGMEM = {empty, c_phaseDesc_presoak, c_phaseDesc_soak, c_phaseDesc_reflow, c_phaseDesc_waiting, c_phaseDesc_cooling, c_phaseDesc_cooldoor, c_phaseDesc_abort};
+char phaseBuffer[17];
+
+const char c_bakingPDesc_heating[] PROGMEM = "Heating";
+const char c_bakingPDesc_baking[] PROGMEM = "Baking";
+const char c_bakingPDesc_cooling[] PROGMEM = "Cooling";
+
+const char* const bakingPhaseDescription[] PROGMEM = {empty, c_bakingPDesc_heating, c_bakingPDesc_baking, empty, c_bakingPDesc_cooling, empty};
+char bakingBuffer[8];
 
 // EEPROM settings
 // Remember that EEPROM initializes to 0xFF after flashing the bootloader
 #define SETTING_EEPROM_NEEDS_INIT             0    // EEPROM will be initialized to 0 at first run
-#define SETTING_D4_TYPE                       1    // Element type controlled by D4 (or fan, unused)
-#define SETTING_D5_TYPE                       2    // Element type controlled by D5 (or fan, unused)
-#define SETTING_D6_TYPE                       3    // Element type controlled by D6 (or fan, unused)
-#define SETTING_D7_TYPE                       4    // Element type controlled by D7 (or fan, unused)
+#define SETTING_D5_TYPE                       1    // Element type controlled by D5 (or fan, unused)
+#define SETTING_D6_TYPE                       2    // Element type controlled by D6 (or fan, unused)
+#define SETTING_D7_TYPE                       3    // Element type controlled by D7 (or fan, unused)
+#define SETTING_D8_TYPE                       4    // Element type controlled by D8 (or fan, unused)
 #define SETTING_MAX_TEMPERATURE               5    // Maximum oven temperature.  Relow curve will be based on this (stored temp is offset by 150 degrees)
 #define SETTING_SETTINGS_CHANGED              6    // Settings have changed.  Relearn duty cycles
 #define SETTING_BAKE_TEMPERATURE              7    // The baking temperature (divided by 5)
@@ -64,18 +84,18 @@ const char *bakingPhaseDescription[] = {"", "Heating", "Baking", "", "Cooling", 
 
 // Learned settings
 #define SETTING_LEARNING_MODE                 10   // ControLeo is learning oven response and will make adjustments
-#define SETTING_PRESOAK_D4_DUTY_CYCLE         11   // Duty cycle (0-100) that D4 must be used during presoak
-#define SETTING_PRESOAK_D5_DUTY_CYCLE         12   // Duty cycle (0-100) that D5 must be used during presoak
-#define SETTING_PRESOAK_D6_DUTY_CYCLE         13   // Duty cycle (0-100) that D6 must be used during presoak
-#define SETTING_PRESOAK_D7_DUTY_CYCLE         14   // Duty cycle (0-100) that D7 must be used during presoak
-#define SETTING_SOAK_D4_DUTY_CYCLE            15   // Duty cycle (0-100) that D4 must be used during soak
-#define SETTING_SOAK_D5_DUTY_CYCLE            16   // Duty cycle (0-100) that D5 must be used during soak
-#define SETTING_SOAK_D6_DUTY_CYCLE            17   // Duty cycle (0-100) that D6 must be used during soak
-#define SETTING_SOAK_D7_DUTY_CYCLE            18   // Duty cycle (0-100) that D7 must be used during soak
-#define SETTING_REFLOW_D4_DUTY_CYCLE          19   // Duty cycle (0-100) that D4 must be used during reflow
-#define SETTING_REFLOW_D5_DUTY_CYCLE          20   // Duty cycle (0-100) that D4 must be used during reflow
-#define SETTING_REFLOW_D6_DUTY_CYCLE          21   // Duty cycle (0-100) that D4 must be used during reflow
-#define SETTING_REFLOW_D7_DUTY_CYCLE          22   // Duty cycle (0-100) that D4 must be used during reflow
+#define SETTING_PRESOAK_D5_DUTY_CYCLE         11   // Duty cycle (0-100) that D4 must be used during presoak
+#define SETTING_PRESOAK_D6_DUTY_CYCLE         12   // Duty cycle (0-100) that D5 must be used during presoak
+#define SETTING_PRESOAK_D7_DUTY_CYCLE         13   // Duty cycle (0-100) that D6 must be used during presoak
+#define SETTING_PRESOAK_D8_DUTY_CYCLE         14   // Duty cycle (0-100) that D7 must be used during presoak
+#define SETTING_SOAK_D5_DUTY_CYCLE            15   // Duty cycle (0-100) that D4 must be used during soak
+#define SETTING_SOAK_D6_DUTY_CYCLE            16   // Duty cycle (0-100) that D5 must be used during soak
+#define SETTING_SOAK_D7_DUTY_CYCLE            17   // Duty cycle (0-100) that D6 must be used during soak
+#define SETTING_SOAK_D8_DUTY_CYCLE            18   // Duty cycle (0-100) that D7 must be used during soak
+#define SETTING_REFLOW_D5_DUTY_CYCLE          19   // Duty cycle (0-100) that D4 must be used during reflow
+#define SETTING_REFLOW_D6_DUTY_CYCLE          20   // Duty cycle (0-100) that D4 must be used during reflow
+#define SETTING_REFLOW_D7_DUTY_CYCLE          21   // Duty cycle (0-100) that D4 must be used during reflow
+#define SETTING_REFLOW_D8_DUTY_CYCLE          22   // Duty cycle (0-100) that D4 must be used during reflow
 #define SETTING_SERVO_OPEN_DEGREES            23   // The position the servo should be in when the door is open
 #define SETTING_SERVO_CLOSED_DEGREES          24   // The position the servo should be in when the door is closed
 
@@ -84,8 +104,5 @@ const char *bakingPhaseDescription[] = {"", "Heating", "Baking", "", "Cooling", 
 #define BAKE_MAX_DURATION                     176  // 176 = 18 hours (see getBakeSeconds)
 #define BAKE_MIN_TEMPERATURE                  40   // Minimum temperature for baking
 #define BAKE_MAX_TEMPERATURE                  200  // Maximum temperature for baking
-
-// Thermocouple
-#define THERMOCOUPLE_FAULT(x)                 (x == FAULT_OPEN || x == FAULT_SHORT_GND || x == FAULT_SHORT_VCC)
 
 #endif // REFLOW_WIZARD_H

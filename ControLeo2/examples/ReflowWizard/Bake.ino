@@ -29,22 +29,9 @@ boolean Bake() {
   
   // Read the temperature
   currentTemperature = getCurrentTemperature();
-  if (THERMOCOUPLE_FAULT(currentTemperature)) {
+  if (currentTemperature == NAN) {
     lcdPrintLine(0, "Thermocouple err");
-    Serial.print(F("Thermocouple Error: "));
-    switch ((int) currentTemperature) {
-      case FAULT_OPEN:
-        lcdPrintLine(1, "Fault open");
-        Serial.println(F("Fault open"));
-        break;
-      case FAULT_SHORT_GND:
-        lcdPrintLine(1, "Short to GND");
-        Serial.println(F("Short to ground"));
-        break;
-      case FAULT_SHORT_VCC:
-        lcdPrintLine(1, "Short to VCC");
-        break;
-    }
+    Serial.print(F("Thermocouple Error"));
     
     // Abort the bake
     Serial.println(F("Bake aborted because of thermocouple error!"));
@@ -66,7 +53,7 @@ boolean Bake() {
       // Start the bake, regardless of the starting temperature
       // Get the types for the outputs (elements, fan or unused)
       for (i=0; i<4; i++)
-        outputType[i] = getSetting(SETTING_D4_TYPE + i);
+        outputType[i] = getSetting(SETTING_D5_TYPE + i);
       // Get the bake temperature
       bakeTemperature = getSetting(SETTING_BAKE_TEMPERATURE);
       // Get the bake duration
@@ -84,7 +71,8 @@ boolean Bake() {
       
       // Move to the next phase
       bakePhase = BAKING_PHASE_HEATUP;
-      lcdPrintLine(0, bakingPhaseDescription[bakePhase]);
+      strcpy_P(bakingBuffer, (char*)pgm_read_word(&(bakingPhaseDescription[bakePhase])));
+      lcdPrintLine(0, bakingBuffer);
       lcdPrintLine(1, "");
 
       // Start with a duty cycle proportional to the desired temperature
@@ -111,7 +99,8 @@ boolean Bake() {
       // Is the oven close to the desired temperature?
       if (bakeTemperature - currentTemperature < 15.0) {
         bakePhase = BAKING_PHASE_BAKE;
-        lcdPrintLine(0, bakingPhaseDescription[bakePhase]);
+        strcpy_P(bakingBuffer, (char*)pgm_read_word(&(bakingPhaseDescription[bakePhase])));
+      lcdPrintLine(0, bakingBuffer);
         // Reduce the duty cycle for the last 10 degrees
         bakeDutyCycle = bakeDutyCycle / 3;
         Serial.println(F("Move to bake phase"));
@@ -193,12 +182,11 @@ boolean Bake() {
       
       // Move to the next phase
       bakePhase = BAKING_PHASE_COOLING;
-      lcdPrintLine(0, bakingPhaseDescription[bakePhase]);
+      strcpy_P(bakingBuffer, (char*)pgm_read_word(&(bakingPhaseDescription[bakePhase])));
+      lcdPrintLine(0, bakingBuffer);
 
-      // If a servo is attached, use it to open the door over 10 seconds
-      setServoPosition(getSetting(SETTING_SERVO_OPEN_DEGREES), 10000);
       // Play a tune to let the user know the door should be opened
-      playTones(TUNE_REFLOW_DONE);
+      playTones(250,100,10);
 
       // Cooling should be at least 1 minute (60 seconds) in duration
       coolingDuration = 60;
@@ -221,10 +209,8 @@ boolean Bake() {
       Serial.println(F("Bake is done!"));
       isHeating = false;
       // Turn all elements and fans off
-      for (i = 4; i < 8; i++)
+      for (i = 5; i <= 8; i++)
         digitalWrite(i, LOW);
-      // Close the oven door now, over 3 seconds
-      setServoPosition(getSetting(SETTING_SERVO_CLOSED_DEGREES), 3000);
       // Start next time with initialization
       bakePhase = BAKING_PHASE_INIT;
       // Return to the main menu

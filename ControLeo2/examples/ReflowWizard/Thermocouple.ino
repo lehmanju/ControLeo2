@@ -10,10 +10,10 @@
 
 
 // Store the temperatures as they are read
-volatile float recentTemperatures[NUM_READINGS];
+volatile double recentTemperatures[NUM_READINGS];
 volatile int temperatureErrorCount = 0;
-volatile float temperatureError;
-ControLeo2_MAX31855 thermocouple;
+volatile double temperatureError;
+const MAX6675 thermocouple = {CLK_PIN,CS_PIN,MISO_PIN};
 
 
 // This function is called every 200ms from the Timer 1 (servo) interrupt
@@ -23,10 +23,10 @@ void takeCurrentThermocoupleReading()
     
   // The timer has fired.  It has been 0.2 seconds since the previous reading was taken
   // Take a thermocouple reading
-  float temperature = thermocouple.readThermocouple(CELSIUS);
+  double temperature = thermocouple.readCelsius();
   
   // Is there an error?
-  if (THERMOCOUPLE_FAULT(temperature)) {
+  if (temperature == NAN) {
     // Noise can cause spurious short faults.  These are typically caused by the convection fan
     if (temperatureErrorCount < ERROR_THRESHOLD)
       temperatureErrorCount++;

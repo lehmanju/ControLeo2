@@ -6,7 +6,7 @@
 // Return false to exit this mode
 boolean Config() {
   static int setupPhase = 0;
-  static int output = 4;    // Start with output D4
+  static int output = 5;    // Start with output D4
   static int type = TYPE_TOP_ELEMENT;
   static boolean drawMenu = true;
   static int maxTemperature;
@@ -24,8 +24,9 @@ boolean Config() {
         lcdPrintLine(0, "Dx is");
         lcd.setCursor(1, 0);
         lcd.print(output);
-        type = getSetting(SETTING_D4_TYPE - 4 + output);
-        lcdPrintLine(1, outputDescription[type]);
+        type = getSetting(SETTING_D5_TYPE - 5 + output);
+        strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[type])));
+        lcdPrintLine(1, descBuffer);
       }
   
       // Was a button pressed?
@@ -33,24 +34,26 @@ boolean Config() {
         case CONTROLEO_BUTTON_TOP:
           // Move to the next type
           type = (type+1) % NO_OF_TYPES;
-          lcdPrintLine(1, outputDescription[type]);
+          strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[type])));
+          lcdPrintLine(1, descBuffer);
           break;
         case CONTROLEO_BUTTON_BOTTOM:
           // Save the type for this output
-          setSetting(SETTING_D4_TYPE - 4 + output, type);
+          setSetting(SETTING_D5_TYPE - 5 + output, type);
           // Go to the next output
           output++;
-          if (output != 8) {
+          if (output != 9) {
             lcd.setCursor(1, 0);
             lcd.print(output);
-            type = getSetting(SETTING_D4_TYPE - 4 + output);
-            lcdPrintLine(1, outputDescription[type]);
+            type = getSetting(SETTING_D5_TYPE - 5 + output);
+            strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[type])));
+            lcdPrintLine(1, descBuffer);
             break;
           }
           
           // Go to the next phase.  Reset variables used in this phase
           setupPhase++;
-          output = 4;
+          output = 5;
           break;
       }
       break;
@@ -81,45 +84,8 @@ boolean Config() {
       }
       break;
     
-    case 2:  // Get the servo open and closed settings
-      if (drawMenu) {
-        drawMenu = false;
-        lcdPrintLine(0, "Door servo");
-        lcdPrintLine(1, selectedServo == SETTING_SERVO_OPEN_DEGREES? "open:" : "closed:");
-        servoDegrees = getSetting(selectedServo);
-        displayServoDegrees(servoDegrees);
-        // Move the servo to the saved position
-        setServoPosition(servoDegrees, 1000);
-      }
-      
-      // Was a button pressed?
-      switch (getButton()) {
-        case CONTROLEO_BUTTON_TOP:
-          // Should the servo increment change direction?
-          if (servoDegrees >= 180)
-            servoDegreesIncrement = -5;
-          if (servoDegrees == 0)
-            servoDegreesIncrement = 5;
-          // Change the servo angle
-          servoDegrees += servoDegreesIncrement;
-          // Move the servo to this new position
-          setServoPosition(servoDegrees, 200);
-          displayServoDegrees(servoDegrees);
-          break;
-        case CONTROLEO_BUTTON_BOTTOM:
-          // Save the servo position
-          setSetting(selectedServo, servoDegrees);
-          // Go to the next phase.  Reset variables used in this phase
-          if (selectedServo == SETTING_SERVO_OPEN_DEGREES) {
-            selectedServo = SETTING_SERVO_CLOSED_DEGREES;
-            drawMenu = true;
-          }
-          else {
-            selectedServo = SETTING_SERVO_OPEN_DEGREES;
-            // Go to the next phase
-            setupPhase++;
-          }
-      }
+    case 2:     
+      setupPhase++;
       break;
 
     case 3:  // Get bake temperature
@@ -244,14 +210,6 @@ void displayMaxTemperature(int maxTemperature) {
   lcd.setCursor(0, 1);
   lcd.print(maxTemperature);
 }
-
-
-void displayServoDegrees(int degrees) {
-  lcd.setCursor(8, 1);
-  lcd.print(degrees);
-  lcd.print("\1 ");
-}
-
 
 void displayDuration(int offset, uint16_t duration) {
   lcd.setCursor(offset, 1);

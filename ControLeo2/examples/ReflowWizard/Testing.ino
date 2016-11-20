@@ -9,18 +9,18 @@
 boolean Testing() {
   static boolean firstRun = true;
   static boolean channelIsOn = true;
-  static int channel = 4; 
+  static int channel = 5; 
   
   // Is this the first time "Testing" has been run?
   if (firstRun) {
     firstRun = false;
     lcdPrintLine(0, "Test Outputs");
-    lcdPrintLine(1, "Output 4");
+    lcdPrintLine(1, "Output 5");
     displayOnState(channelIsOn);
   }
   
   // Turn the currently selected channel on, and the others off
-  for (int i=4; i<8; i++) {
+  for (int i=5; i<=8; i++) {
     if (i == channel && channelIsOn)
       digitalWrite(i, HIGH);
     else
@@ -37,13 +37,13 @@ boolean Testing() {
     case CONTROLEO_BUTTON_BOTTOM:
       // Move to the next output
       channel = channel + 1;
-      if (channel == 8) {
+      if (channel == 9) {
         // Turn all the outputs off
-        for (int i=4; i<8; i++)
+        for (int i=5; i<=8; i++)
           digitalWrite(i, LOW);
         // Initialize variables for the next time through
         firstRun = true;
-        channel = 4;
+        channel = 5;
         channelIsOn = true;
         // Return to the main menu
         return false;

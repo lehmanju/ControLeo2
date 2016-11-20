@@ -105,12 +105,13 @@
 
 
 // ***** INCLUDES *****
-#include <ControLeo2.h>
+#include "ControLeo2.h"
 #include "ReflowWizard.h"
+#include <TimerOne.h>
 
 // ***** TYPE DEFINITIONS *****
 
-ControLeo2_LiquidCrystal lcd;
+ControLeo2_LiquidCrystal lcd = {};
 
 int mode = 0;
 
@@ -118,11 +119,9 @@ void setup() {
   // *********** Start of ControLeo2 initialization ***********
   // Set up the buzzer and buttons
   pinMode(CONTROLEO_BUZZER_PIN, OUTPUT);
-  pinMode(CONTROLEO_BUTTON_TOP_PIN, INPUT_PULLUP);
-  pinMode(CONTROLEO_BUTTON_BOTTOM_PIN, INPUT_PULLUP);
   // Set the relays as outputs and turn them off
-  // The relay outputs are on D4 to D7 (4 outputs)
-  for (int i=4; i<8; i++) {
+  // The relay outputs are on D5 to D8 (4 outputs)
+  for (int i=5; i<=8; i++) {
     pinMode(i, OUTPUT);
     digitalWrite(i, LOW);
   }
@@ -134,37 +133,33 @@ void setup() {
   // *********** End of ControLeo2 initialization ***********
   
   // Log data to the computer using USB
-  Serial.begin(57600);
-  
-  // Initialize the timer used to take thermocouple readings and control the servo
-  initializeTimer();
+  Serial.begin(9600);
+
+  // Setup Timer used to take Thermocouple readings
+  Timer1.initialize(200000);
+  Timer1.attachInterrupt(takeCurrentThermocoupleReading);
 
   // Write the initial message on the LCD screen
   lcdPrintLine(0, "   ControLeo2");
   lcdPrintLine(1, "Reflow Oven v1.9");
-  delay(100);
-  playTones(TUNE_STARTUP);
-  delay(3000);
+  delay(1000);  
   
   // Initialize the EEPROM, after flashing bootloader
   InitializeSettingsIfNeccessary();
   lcd.clear();
-  
-  // Go straight to reflow menu if learning is complete
-  if (getSetting(SETTING_LEARNING_MODE) == false)
-    mode = 2;
 
   Serial.println(F("ControLeo2 Reflow Oven controller v1.9"));
-  
-  // Make sure the oven door is closed
-  setServoPosition(getSetting(SETTING_SERVO_CLOSED_DEGREES), 1000);
 }
 
 
 // The main menu has 4 options
 boolean (*action[NO_OF_MODES])() = {Testing, Config, Reflow, Bake};
-const char* modes[NO_OF_MODES] = {"Test Outputs?", "Setup?", "Start Reflow?", "Start Baking?"};
-
+const char testing[] PROGMEM = "Test Outputs?";
+const char config[] PROGMEM = "Setup?";
+const char reflow[] PROGMEM = "Start Reflow?";
+const char baking[] PROGMEM = "Start Baking?";
+const char* const modes[NO_OF_MODES] PROGMEM = {testing, config, reflow, baking};
+char modeBuffer[14];
 
 // This loop is executed 20 times per second
 void loop()
@@ -178,7 +173,8 @@ void loop()
   if (showMainMenu) {
     if (drawMenu) {
       drawMenu = false;
-      lcdPrintLine(0, modes[mode]);
+      strcpy_P(modeBuffer, (char*)pgm_read_word(&(modes[mode])));
+      lcdPrintLine(0, modeBuffer);
       lcdPrintLine(1, "          Yes ->");
     }
     
@@ -228,6 +224,7 @@ int getButton()
   static long lastChangeMillis = 0;
   long nowMillis = millis();
   int buttonValue;
+  int val = analogRead(CONTROLEO_BUTTON_PIN);
   
   // If insufficient time has passed, just return none pressed
   if (lastChangeMillis + DEBOUNCE_INTERVAL > nowMillis)
@@ -235,13 +232,13 @@ int getButton()
   
   // Read the current button status
   buttonValue = CONTROLEO_BUTTON_NONE;
-  if (digitalRead(CONTROLEO_BUTTON_TOP_PIN) == LOW) {
+  if (val < 195) {
     buttonValue = CONTROLEO_BUTTON_TOP;
-    playTones(TUNE_TOP_BUTTON_PRESS);
+    playTones(50,0,1);
   }
-  else if (digitalRead(CONTROLEO_BUTTON_BOTTOM_PIN) == LOW) {
+  else if (val < 380) {
     buttonValue = CONTROLEO_BUTTON_BOTTOM;
-    playTones(TUNE_BOTTOM_BUTTON_PRESS);
+    playTones(50,0,1);
   }
     
   // Note the time the button was pressed
@@ -270,13 +267,12 @@ void lcdPrintLine(int line, const char* str) {
 // Displays the temperature in the bottom left corner of the LCD display
 void displayTemperature(double temperature) {
   lcd.setCursor(0, 1);
-  if (THERMOCOUPLE_FAULT(temperature)) {
+  if (temperature == NAN) {
     lcd.print("        ");
     return;
   }
   lcd.print(temperature);
   // Print degree Celsius symbol
-  lcd.print("\1C ");  
+  lcd.print(F("\1C "));  
 }
-
 
