@@ -5,7 +5,7 @@
 // takeCurrentThermocoupleReading() is called from the Timer 1 interrupt (see "Servo" tab).  It is
 // called 5 times per second.
 
-#define NUM_READINGS           5   // Number of readings to average the temperature over (5 readings = 1 second)
+#define NUM_READINGS           2   // Number of readings to average the temperature over (5 readings = 1 second)
 #define ERROR_THRESHOLD        15  // Number of consecutive faults before a fault is returned
 
 
@@ -26,6 +26,8 @@ void takeCurrentThermocoupleReading()
   // The timer has fired.  It has been 0.2 seconds since the previous reading was taken
   // Take a thermocouple reading
   float temperature = thermocouple.readCelsius();
+  //Serial.print(F("CurrentTemp: "));
+  //Serial.println(temperature);
   // Is there an error?
   if (temperature == NAN) {
     // Noise can cause spurious short faults.  These are typically caused by the convection fan

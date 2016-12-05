@@ -136,7 +136,7 @@ void setup() {
   Serial.begin(57600);
 
   // Setup Timer used to take Thermocouple readings
-  Timer1.initialize(200000);
+  Timer1.initialize(500000);
   Timer1.attachInterrupt(takeCurrentThermocoupleReading);
 
   // Write the initial message on the LCD screen
