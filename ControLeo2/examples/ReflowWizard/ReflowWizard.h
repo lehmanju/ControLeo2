@@ -96,8 +96,6 @@ char bakingBuffer[8];
 #define SETTING_REFLOW_D6_DUTY_CYCLE          20   // Duty cycle (0-100) that D4 must be used during reflow
 #define SETTING_REFLOW_D7_DUTY_CYCLE          21   // Duty cycle (0-100) that D4 must be used during reflow
 #define SETTING_REFLOW_D8_DUTY_CYCLE          22   // Duty cycle (0-100) that D4 must be used during reflow
-#define SETTING_SERVO_OPEN_DEGREES            23   // The position the servo should be in when the door is open
-#define SETTING_SERVO_CLOSED_DEGREES          24   // The position the servo should be in when the door is closed
 
 #define TEMPERATURE_OFFSET                    150  // To allow temperature to be saved in 8-bits (0-255)
 #define BAKE_TEMPERATURE_STEP                 5    // Allows the storing of the temperature range in one byte

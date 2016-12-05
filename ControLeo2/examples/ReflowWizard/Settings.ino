@@ -75,19 +75,6 @@ void InitializeSettingsIfNeccessary() {
       EEPROM.write(i, 0);
     // Set a reasonable max temperature
     setSetting(SETTING_MAX_TEMPERATURE, 240);
-    // Set the servos to neutral positions (90 degrees)
-    setSetting(SETTING_SERVO_CLOSED_DEGREES, 90);
-    setSetting(SETTING_SERVO_OPEN_DEGREES, 90);
-    // Set default baking temperature
-    setSetting(SETTING_BAKE_TEMPERATURE, BAKE_MIN_TEMPERATURE);
-  }
-  
-  // Legacy support - Initialize the rest of EEPROM for upgrade from 1.x to 1.4
-  if (getSetting(SETTING_SERVO_OPEN_DEGREES) > 180) {
-    for (int i=SETTING_SERVO_OPEN_DEGREES; i<1024; i++)
-      EEPROM.write(i, 0);
-    setSetting(SETTING_SERVO_CLOSED_DEGREES, 90);
-    setSetting(SETTING_SERVO_OPEN_DEGREES, 90);
     setSetting(SETTING_BAKE_TEMPERATURE, BAKE_MIN_TEMPERATURE);
   }
 }

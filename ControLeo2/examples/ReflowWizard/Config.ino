@@ -10,9 +10,6 @@ boolean Config() {
   static int type = TYPE_TOP_ELEMENT;
   static boolean drawMenu = true;
   static int maxTemperature;
-  static int servoDegrees;
-  static int servoDegreesIncrement = 5;
-  static int selectedServo = SETTING_SERVO_OPEN_DEGREES;
   static int bakeTemperature;
   static int bakeDuration;
   int oldSetupPhase = setupPhase;

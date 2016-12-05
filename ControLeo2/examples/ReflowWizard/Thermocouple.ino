@@ -10,27 +10,29 @@
 
 
 // Store the temperatures as they are read
-volatile double recentTemperatures[NUM_READINGS];
+volatile float recentTemperatures[NUM_READINGS];
 volatile int temperatureErrorCount = 0;
-volatile double temperatureError;
+volatile float temperatureError;
 const MAX6675 thermocouple = {CLK_PIN,CS_PIN,MISO_PIN};
 
 
 // This function is called every 200ms from the Timer 1 (servo) interrupt
 void takeCurrentThermocoupleReading()
 {
+  noInterrupts();
+  //Serial.println(F("Timer called"));
   volatile static int readingNum = 0;
-    
+  
   // The timer has fired.  It has been 0.2 seconds since the previous reading was taken
   // Take a thermocouple reading
-  double temperature = thermocouple.readCelsius();
-  
+  float temperature = thermocouple.readCelsius();
   // Is there an error?
   if (temperature == NAN) {
     // Noise can cause spurious short faults.  These are typically caused by the convection fan
     if (temperatureErrorCount < ERROR_THRESHOLD)
       temperatureErrorCount++;
     temperatureError = temperature;
+    Serial.println(F("Temperature error"));
   }
   else {
     // There is no error.  Save the temperature
@@ -39,6 +41,7 @@ void takeCurrentThermocoupleReading()
     // Clear any previous error
     temperatureErrorCount = 0;
   }
+  interrupts();
 }
 
 

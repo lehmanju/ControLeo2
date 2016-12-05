@@ -133,7 +133,7 @@ void setup() {
   // *********** End of ControLeo2 initialization ***********
   
   // Log data to the computer using USB
-  Serial.begin(9600);
+  Serial.begin(57600);
 
   // Setup Timer used to take Thermocouple readings
   Timer1.initialize(200000);
@@ -168,7 +168,6 @@ void loop()
   static boolean showMainMenu = true;
   static int counter = 0;
   static unsigned long nextLoopTime = 50; // Should be 3000 + 100 + fudge factor + 50 - but no harm making it 50!
-  
   
   if (showMainMenu) {
     if (drawMenu) {
@@ -265,7 +264,7 @@ void lcdPrintLine(int line, const char* str) {
 
 
 // Displays the temperature in the bottom left corner of the LCD display
-void displayTemperature(double temperature) {
+void displayTemperature(float temperature) {
   lcd.setCursor(0, 1);
   if (temperature == NAN) {
     lcd.print("        ");
