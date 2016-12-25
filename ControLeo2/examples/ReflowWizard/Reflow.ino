@@ -307,14 +307,14 @@ boolean Reflow() {
           continue;
         // Turn all the elements on at the start of the presoak
         if (reflowPhase == PHASE_PRESOAK && currentTemperature < (phase[reflowPhase].endTemperature * 3 / 5)) {
-          digitalWrite(4 + i, HIGH);
+          digitalWrite(5 + i, HIGH);
           continue;
         }
         // Turn the output on at 0, and off at the duty cycle value
         if (elementDutyCounter[i] == 0)
-          digitalWrite(4 + i, HIGH);
+          digitalWrite(5 + i, HIGH);
         if (elementDutyCounter[i] == phase[reflowPhase].elementDutyCycle[i])
-          digitalWrite(4 + i, LOW);
+          digitalWrite(5 + i, LOW);
         // Increment the duty counter
         elementDutyCounter[i] = (elementDutyCounter[i] + 1) % 100;
       }
@@ -339,7 +339,7 @@ boolean Reflow() {
         // Make sure all the elements are off (keep convection fans on)
         for (int i=0; i<4; i++) {
           if (outputType[i] != TYPE_CONVECTION_FAN)
-            digitalWrite(i+4, LOW);
+            digitalWrite(i+5, LOW);
         }
         // If we made it here it means the reflow is within the defined parameters.  Turn off learning mode
         setSetting(SETTING_LEARNING_MODE, false);
@@ -374,7 +374,7 @@ boolean Reflow() {
         // Turn on the cooling fan
         for (int i=0; i<4; i++) {
           if (outputType[i] == TYPE_COOLING_FAN)
-            digitalWrite(i+4, HIGH);
+            digitalWrite(i+5, HIGH);
         }
       }
       // Update the temperature roughly once per second
@@ -446,7 +446,7 @@ void adjustPhaseDutyCycle(int phase, int adjustment) {
       case TYPE_TOP_ELEMENT:
       case TYPE_BOTTOM_ELEMENT:
         strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[getSetting(SETTING_D5_TYPE + i)])));
-        sprintf(debugBuffer, "D%d (%s) changed from %d to %d", i+4, descBuffer, getSetting(dutySetting), newDutyCycle);
+        sprintf(debugBuffer, "D%d (%s) changed from %d to %d", i+5, descBuffer, getSetting(dutySetting), newDutyCycle);
         Serial.println(debugBuffer);
         // Save the new duty cycle
         setSetting(dutySetting, newDutyCycle);
@@ -486,7 +486,7 @@ void serialDisplayPhaseData(int phase, struct phaseData *pd, int *outputType) {
   Serial.println(F("Duty cycles: "));
   for (int i=0; i<4; i++) {
     strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[outputType[i]])));
-    sprintf(debugBuffer, "  D%d = %d  (%s)", i+4, pd->elementDutyCycle[i], descBuffer);
+    sprintf(debugBuffer, "  D%d = %d  (%s)", i+5, pd->elementDutyCycle[i], descBuffer);
     Serial.println(debugBuffer);
   }
 }
