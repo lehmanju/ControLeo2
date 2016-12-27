@@ -428,13 +428,22 @@ boolean Reflow() {
 
 // Adjust the duty cycle for all elements by the given adjustment value
 void adjustPhaseDutyCycle(int phase, int adjustment) {
-  int newDutyCycle;
+  int newDutyCycle, oldDutyCycle, dutySetting;
+  boolean inPreviousPhase = false;
   strcpy_P(phaseBuffer, (char*)pgm_read_word(&(phaseDescription[phase])));
   sprintf(debugBuffer, "Adjusting duty cycles for %s phase by %d", phaseBuffer, adjustment);
   Serial.println(debugBuffer);
   // Loop through the 4 outputs
   for (int i=0; i< 4; i++) {
-    int dutySetting = SETTING_PRESOAK_D5_DUTY_CYCLE + ((phase-1) * 4) + i;
+    dutySetting = SETTING_PRESOAK_D5_DUTY_CYCLE + ((phase-1) * 4) + i;
+    oldDutyCycle = getSetting(dutySetting);
+    // Adjust values in previous phase if necessary
+    if (((oldDutyCycle == 0 && adjustment < 0) || (oldDutyCycle == 100 && adjustment > 0)) && phase > PHASE_PRESOAK)
+    {
+      dutySetting = SETTING_PRESOAK_D5_DUTY_CYCLE + ((phase-2) * 4) + i;
+      oldDutyCycle = getSetting(dutySetting);
+      inPreviousPhase = true;
+    }
     newDutyCycle = getSetting(dutySetting) + adjustment;
     // Duty cycle must be between 0 and 100%
     newDutyCycle = constrain(newDutyCycle, 0, 100);
@@ -446,7 +455,7 @@ void adjustPhaseDutyCycle(int phase, int adjustment) {
       case TYPE_TOP_ELEMENT:
       case TYPE_BOTTOM_ELEMENT:
         strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[getSetting(SETTING_D5_TYPE + i)])));
-        sprintf(debugBuffer, "D%d (%s) changed from %d to %d", i+5, descBuffer, getSetting(dutySetting), newDutyCycle);
+        sprintf(debugBuffer, "D%d (%s) changed from %d to %d (in previous phase: %d)", i+5, descBuffer, oldDutyCycle, newDutyCycle, inPreviousPhase);
         Serial.println(debugBuffer);
         // Save the new duty cycle
         setSetting(dutySetting, newDutyCycle);
