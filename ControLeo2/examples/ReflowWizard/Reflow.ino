@@ -306,7 +306,7 @@ boolean Reflow() {
         if (outputType[i] == TYPE_UNUSED || outputType[i] == TYPE_COOLING_FAN)
           continue;
         // Turn all the elements on at the start of the presoak
-        if (reflowPhase == PHASE_PRESOAK && currentTemperature < (phase[reflowPhase].endTemperature * 3 / 5)) {
+        if (reflowPhase == PHASE_PRESOAK && currentTemperature < (phase[reflowPhase].endTemperature * 2 / 5)) {
           digitalWrite(5 + i, HIGH);
           continue;
         }
