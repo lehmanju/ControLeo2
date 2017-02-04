@@ -66,7 +66,7 @@ boolean Bake() {
       // If there is a convection fan then turn it on now
       for (i=0; i< 4; i++) {
         if (outputType[i] == TYPE_CONVECTION_FAN)
-          digitalWrite(4 + i, HIGH);
+          digitalWrite(5 + i, HIGH);
       }
       
       // Move to the next phase
@@ -126,7 +126,7 @@ boolean Bake() {
             // Turn all heating elements off
             for (i=0; i< 4; i++) {
               if (isHeatingElement(outputType[i]))
-                digitalWrite(4 + i, LOW);
+                digitalWrite(5 + i, LOW);
             }
 
             // The duty cycle caused the temperature to exceed the bake temperature, so decrease it
@@ -172,10 +172,10 @@ boolean Bake() {
         switch (outputType[i]) {
            case TYPE_CONVECTION_FAN:
            case TYPE_COOLING_FAN:
-             digitalWrite(4 + i, HIGH);
+             digitalWrite(5 + i, HIGH);
              break;
            default:
-             digitalWrite(4 + i, LOW);
+             digitalWrite(5 + i, LOW);
              break;
         }
       }
@@ -225,17 +225,17 @@ boolean Bake() {
         case TYPE_BOTTOM_ELEMENT:
           // Turn the output on at 0, and off at the duty cycle value
           if (elementDutyCounter[i] == 0)
-            digitalWrite(4 + i, HIGH);
+            digitalWrite(5 + i, HIGH);
           if (elementDutyCounter[i] == bakeDutyCycle)
-            digitalWrite(4 + i, LOW);
+            digitalWrite(5 + i, LOW);
           break;
           
         case TYPE_BOOST_ELEMENT: // Give it half the duty cycle of the other elements
           // Turn the output on at 0, and off at the duty cycle value
           if (elementDutyCounter[i] == 0)
-            digitalWrite(4 + i, HIGH);
+            digitalWrite(5 + i, HIGH);
           if (elementDutyCounter[i] == bakeDutyCycle/2)
-            digitalWrite(4 + i, LOW);
+            digitalWrite(5 + i, LOW);
           break;
 
         default:

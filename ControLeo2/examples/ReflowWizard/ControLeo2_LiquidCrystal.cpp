@@ -44,12 +44,12 @@ ControLeo2_LiquidCrystal::ControLeo2_LiquidCrystal(void) {
     _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
     
     // Save the pins used to drive the LCD
-    _rs_pin = A0;
-    _enable_pin = A1;
-    _data_pins[0] = A2;
-    _data_pins[1] = 2;
-    _data_pins[2] = 3;
-    _data_pins[3] = 4;
+    _rs_pin = 21;
+    _enable_pin = 20;
+    _data_pins[0] = 11;
+    _data_pins[1] = 3;
+    _data_pins[2] = 2;
+    _data_pins[3] = 30;
     
     // Set all the pins to be outputs
     pinMode(_rs_pin, OUTPUT);
