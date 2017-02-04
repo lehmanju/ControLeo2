@@ -482,22 +482,19 @@ void adjustPhaseDutyCycle(int phase, int adjustment) {
       case TYPE_BOTTOM_ELEMENT:
         // Allow 100% duty cycle for the bottom element, since all heat will hit the aluminum tray
         newDutyCycle = constrain(newDutyCycle, 0, 100);
-        strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[getSetting(SETTING_D5_TYPE + i)])));
-        sprintf(debugBuffer, "D%d (%s) changed from %d to %d (in previous phase: %d)", i+5, descBuffer, oldDutyCycle, newDutyCycle, inPreviousPhase);
-        Serial.println(debugBuffer);         
-              
-        // Save the new duty cycle
-        setSetting(dutySetting, newDutyCycle);        
+               
         break;
       default:
         // Skip this output if it isn't a heating element (fan or unused)
         continue;
     }
     
-    sprintf(debugBuffer, "D%d (%s) changed from %d to %d", i+4, outputDescription[getSetting(SETTING_D4_TYPE + i)], getSetting(dutySetting), newDutyCycle);
-    Serial.println(debugBuffer);
+    strcpy_P(descBuffer, (char*)pgm_read_word(&(outputDescription[getSetting(SETTING_D5_TYPE + i)])));
+    sprintf(debugBuffer, "D%d (%s) changed from %d to %d (in previous phase: %d)", i+5, descBuffer, oldDutyCycle, newDutyCycle, inPreviousPhase);
+    Serial.println(debugBuffer);         
+              
     // Save the new duty cycle
-    setSetting(dutySetting, newDutyCycle);
+    setSetting(dutySetting, newDutyCycle); 
   }
 }
 
